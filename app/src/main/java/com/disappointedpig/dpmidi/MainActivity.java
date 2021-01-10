@@ -5,8 +5,10 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.ServiceConnection;
 import android.content.SharedPreferences;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.IBinder;
+import android.support.annotation.RequiresApi;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
@@ -86,6 +88,7 @@ public class MainActivity extends AppCompatActivity {
 
 //    private MIDISession midiSession;
 
+    @RequiresApi(api = Build.VERSION_CODES.O)
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -99,7 +102,7 @@ public class MainActivity extends AppCompatActivity {
         //start cms
         Intent startIntent = new Intent(MainActivity.this, ConnectionManagerService.class);
         startIntent.setAction(Constants.ACTION.STARTCMGR_ACTION);
-        startService(startIntent);
+        startForegroundService(startIntent);
 
         bindToCMGRS();
         // bind to CMS
@@ -132,13 +135,13 @@ public class MainActivity extends AppCompatActivity {
                 if (isChecked) {
                     Intent startIntent = new Intent(MainActivity.this, ConnectionManagerService.class);
                     startIntent.setAction(Constants.ACTION.STARTCMGR_ACTION);
-                    startService(startIntent);
+                    startForegroundService(startIntent);
                     // bind to CMS
                     bindToCMGRS();
                 } else {
                     Intent startIntent = new Intent(MainActivity.this, ConnectionManagerService.class);
                     startIntent.setAction(Constants.ACTION.STOPCMGR_ACTION);
-                    startService(startIntent);
+                    startForegroundService(startIntent);
                     unbindFromCMGRS();
                 }
             }
@@ -167,12 +170,12 @@ public class MainActivity extends AppCompatActivity {
                     sharedpreferences.edit().putBoolean(Constants.PREF.MIDI_STATE_PREF,true).commit();
                     Intent startIntent = new Intent(MainActivity.this, ConnectionManagerService.class);
                     startIntent.setAction(Constants.ACTION.START_MIDI_ACTION);
-                    startService(startIntent);
+                    startForegroundService(startIntent);
                 } else {
                     sharedpreferences.edit().putBoolean(Constants.PREF.MIDI_STATE_PREF,false).commit();
                     Intent startIntent = new Intent(MainActivity.this, ConnectionManagerService.class);
                     startIntent.setAction(Constants.ACTION.STOP_MIDI_ACTION);
-                    startService(startIntent);
+                    startForegroundService(startIntent);
                 }
             }
         });
@@ -188,7 +191,7 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(View view) {
                 Bundle rinfo = new Bundle();
-                rinfo.putString(MIDIConstants.RINFO_ADDR,"10.209.1.175");
+                rinfo.putString(MIDIConstants.RINFO_ADDR,"192.168.1.178");
                 rinfo.putInt(MIDIConstants.RINFO_PORT,5004);
                 rinfo.putBoolean(MIDIConstants.RINFO_RECON, useReconnect);
                 MIDISession.getInstance().connect(rinfo);
@@ -199,7 +202,7 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(View view) {
                 Bundle rinfo = new Bundle();
-                rinfo.putString(MIDIConstants.RINFO_ADDR,"10.209.1.175");
+                rinfo.putString(MIDIConstants.RINFO_ADDR,"192.168.1.178");
                 rinfo.putInt(MIDIConstants.RINFO_PORT,5004);
                 rinfo.putBoolean(MIDIConstants.RINFO_RECON, useReconnect);
                 MIDISession.getInstance().disconnect(rinfo);
@@ -292,14 +295,16 @@ public class MainActivity extends AppCompatActivity {
 
 
     public void sendTestMIDI() {
-        Log.d("Main","sendTestMidi 41,127");
-        Bundle testMessage = new Bundle();
-        testMessage.putInt(MIDIConstants.MSG_COMMAND,0x09);
-        testMessage.putInt(MIDIConstants.MSG_CHANNEL,0);
-        testMessage.putInt(MIDIConstants.MSG_NOTE,41);
-        testMessage.putInt(MIDIConstants.MSG_VELOCITY,127);
+        Log.d("Main","sendTestMidi");
+        for (int i = 0; i < 128; i++) {
+            Bundle testMessage = new Bundle();
+            testMessage.putInt(MIDIConstants.MSG_COMMAND,0x09);
+            testMessage.putInt(MIDIConstants.MSG_CHANNEL,0);
+            testMessage.putInt(MIDIConstants.MSG_NOTE, i);
+            testMessage.putInt(MIDIConstants.MSG_VELOCITY,127);
+            MIDISession.getInstance().sendMessage(testMessage);
+        }
 //        MIDIMessage m = MIDIMessage.newUsing(testMessage);
-        MIDISession.getInstance().sendMessage(testMessage);
 //        MIDISession.getInstance().sendMessage(41,127);
 //        MIDIMessage message = MIDISession.getInstance().sendNote(41,127);
 //        if(message != null) {

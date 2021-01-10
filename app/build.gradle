@@ -6,16 +6,16 @@ android {
 
     signingConfigs {
         debug {
-            keyAlias 'stagecallerdebugkey'
+            keyAlias 'androiddebugkey'
             keyPassword 'android'
-            storeFile file('/Users/jay/.android/debug.keystore')
+            storeFile file('/Users/zamua/.android/DPMIDI/debug.keystore')
             storePassword 'android'
         }
         release {
-            keyAlias 'StagecallerProdUpload'
-            keyPassword 'm8c4fmlm'
-            storeFile file('/Users/jay/.android/stagecaller_production.keystore')
-            storePassword 'm8c4fmlm'
+            keyAlias 'androidreleasekey'
+            keyPassword 'android'
+            storeFile file('/Users/zamua/.android/DPMIDI/release.keystore')
+            storePassword 'android'
         }
     }
 

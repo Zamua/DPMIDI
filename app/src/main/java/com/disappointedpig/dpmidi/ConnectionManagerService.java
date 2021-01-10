@@ -68,7 +68,15 @@ public class ConnectionManagerService extends Service implements DPMIDIForegroun
     @Override
     public int onStartCommand(Intent intent, final int flags, int startId) {
         Log.i(TAG, "onStartCommand ");
+
+        if (null == intent || null == intent.getAction ()) {
+            String source = null == intent ? "intent" : "action";
+            Log.e (TAG, source + " was null, flags=" + flags + " bits=" + Integer.toBinaryString (flags));
+            return START_STICKY;
+        }
+
         processIntentAction(intent);
+
         return super.onStartCommand(intent, flags, startId);
     }
 
